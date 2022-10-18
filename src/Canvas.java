@@ -29,7 +29,10 @@ public class Canvas {
     private final @NotNull Liner<Integer> liner;
     private final @NotNull Polygoner<Integer> polygoner;
     private int x1, y1, x2, y2;
-    private boolean tPressed = false;
+    private boolean trojuhelnikMode = false;
+    private boolean polygonMode = false;
+    private boolean dottedLineMode = false;
+    private boolean lineMode = true;
 
     Polygon2D polygon = new Polygon2D();
 
@@ -65,17 +68,33 @@ public class Canvas {
             public void mouseDragged(MouseEvent e) {
                 clear();
 
-                if (!tPressed) {
+                if (polygonMode) {
 
                     polygoner.drawPolygon(polygon, img, 0x00fa00, liner);
-                    polygoner.drawFuturePoint(polygon, img, 0x00fa00, liner, new Point2D(e.getX(), e.getY()));
+                    polygoner.drawFuturePoint(polygon, img, 0x00fafa, liner, new Point2D(e.getX(), e.getY()));
                 }
-                else
+                if(trojuhelnikMode)
                 {
                     if(polygon.getPoints().length < 3) {
                         polygoner.drawPolygon(polygon, img, 0x00fa00, liner);
-                        polygoner.drawFuturePoint(polygon, img, 0x00fa00, liner, new Point2D(e.getX(), e.getY()));
+                        polygoner.drawFuturePoint(polygon, img, 0x00fafa, liner, new Point2D(e.getX(), e.getY()));
                     }
+
+                }
+                if(lineMode)
+                {
+                    if(polygon.getPoints().length > 2)
+                    {
+                        polygon = new Polygon2D();
+                    }
+                    if(polygon.getPoints().length == 0)
+                    {
+                        polygon.addPoint2D(new Point2D(e.getX(), e.getY()));
+                    }
+                    liner.drawLine(img, polygon.getPoints()[0].getX(), polygon.getPoints()[0].getY(), e.getX(), e.getY(), 0x00fa00);
+                }
+                if(dottedLineMode)
+                {
 
                 }
 
@@ -92,7 +111,7 @@ public class Canvas {
                 {
                     polygon.addPoint2D(new Point2D(e.getX(), e.getY()));
                 }
-                if(tPressed)
+                if(trojuhelnikMode)
                 {
                     if(polygon.getPoints().length > 3)
                     {
@@ -101,6 +120,13 @@ public class Canvas {
                         polygon.addPoint2D(new Point2D(e.getX(), e.getY()));
                     }
                 }
+                if(lineMode)
+                {
+                    clear();
+                    polygon = new Polygon2D();
+                    polygon.addPoint2D(new Point2D(e.getX(), e.getY()));
+                }
+
 
             }
         });
@@ -109,14 +135,16 @@ public class Canvas {
             @Override
             public void mouseReleased(MouseEvent e) {
 
-                clear();
-                if (!tPressed) {
 
+                if (polygonMode) {
+
+                    clear();
                     polygon.addPoint2D(new Point2D(e.getX(), e.getY()));
                     polygoner.drawPolygon(polygon, img, 0x00fa00, liner);
                 }
-                else
+                if(trojuhelnikMode)
                 {
+                    clear();
                     if(polygon.getPoints().length < 3) {
                         polygon.addPoint2D(new Point2D(e.getX(), e.getY()));
                         polygoner.drawPolygon(polygon, img, 0x00fa00, liner);
@@ -133,7 +161,6 @@ public class Canvas {
         });
 
 
-
         panel.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -141,23 +168,51 @@ public class Canvas {
                     clear();
                     present();
                 }
-            }
-        });
-
-        panel.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_T) {
                     clear();
-                    if(!tPressed)
+                    if(!trojuhelnikMode)
                     {
-                        tPressed = true;
+                        trojuhelnikMode = true;
                         frame.setTitle("Trojúhelník režim");
+                        polygonMode = false;
+                        lineMode = false;
+                        dottedLineMode = false;
                     }
-                    else
+                }
+                if(e.getKeyCode() == KeyEvent.VK_Z)
+                {
+                    clear();
+                    if(!polygonMode)
                     {
-                        tPressed = false;
+                        polygonMode = true;
                         frame.setTitle("Polygon režim");
+                        trojuhelnikMode = false;
+                        lineMode = false;
+                        dottedLineMode = false;
+                    }
+                }
+                if(e.getKeyCode() == KeyEvent.VK_U)
+                {
+                    clear();
+                    if(!dottedLineMode)
+                    {
+                        dottedLineMode = true;
+                        frame.setTitle("Přerušovaná čára režim");
+                        trojuhelnikMode = false;
+                        lineMode = false;
+                        polygonMode = false;
+                    }
+                }
+                if(e.getKeyCode() == KeyEvent.VK_I)
+                {
+                    clear();
+                    if(!lineMode)
+                    {
+                        lineMode = true;
+                        frame.setTitle("Čára režim");
+                        trojuhelnikMode = false;
+                        dottedLineMode = false;
+                        polygonMode = false;
                     }
                 }
             }

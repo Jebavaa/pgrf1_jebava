@@ -27,13 +27,19 @@ public class TrivialLiner<P> implements Liner<P> {
             y2 = helper;
         }
 
-        if(Math.abs(k) <= 1) {
+        if(x2 - x1 == 0)
+        {
+            for (int y = y1; y <= y2; y++) {
+                int x = x1;
+                img.setPixel(x, y, pixelValue);
+            }
+        }
+        else if(Math.abs(k) <= 1) {
             for (int x = x1; x <= x2; x++) {
                 int y = (int) Math.round(k * x + q);
                 img.setPixel(x, y, pixelValue);
             }
         }
-
         else if(Math.abs(k) > 1)
         {
             for (int y = y1; y <= y2; y++) {

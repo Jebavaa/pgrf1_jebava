@@ -1,13 +1,12 @@
 import objectData.Point2D;
 import objectData.Polygon2D;
+import objectData.Triangle2D;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import rasterData.Presentable;
 import rasterData.RasterImage;
 import rasterData.RasterImageBI;
-import rasterOps.Liner;
-import rasterOps.Polygoner;
-import rasterOps.TrivialLiner;
+import rasterOps.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -27,7 +26,9 @@ public class Canvas {
     RasterImage<Integer> img;
     private final @NotNull Presentable<Graphics> presenter;
     private final @NotNull Liner<Integer> liner;
+    private final @NotNull Liner<Integer> dottedLiner;
     private final @NotNull Polygoner<Integer> polygoner;
+    private final @NotNull Trianglener<Integer> trianglener;
     private int x1, y1, x2, y2;
     private boolean trojuhelnikMode = false;
     private boolean polygonMode = false;
@@ -35,6 +36,7 @@ public class Canvas {
     private boolean lineMode = true;
 
     Polygon2D polygon = new Polygon2D();
+    Triangle2D triangle = new Triangle2D();
 
 
     public Canvas(int width, int height) {
@@ -49,7 +51,9 @@ public class Canvas {
         img = auxRasterImage;
         presenter = auxRasterImage;
         liner = new TrivialLiner<>();
+        dottedLiner = new DottedLiner<>();
         polygoner = new Polygoner<>();
+        trianglener = new Trianglener<>();
 
         panel = new JPanel() {
             private static final long serialVersionUID = 1L;
@@ -71,17 +75,24 @@ public class Canvas {
                 if (polygonMode) {
 
                     polygoner.drawPolygon(polygon, img, 0x00fa00, liner);
-                    polygoner.drawFuturePoint(polygon, img, 0x00fafa, liner, new Point2D(e.getX(), e.getY()));
+                    polygoner.drawFuturePoint(polygon, img, 0x00fafa, dottedLiner, new Point2D(e.getX(), e.getY()));
                 }
                 if(trojuhelnikMode)
                 {
-                    if(polygon.getPoints().length < 3) {
-                        polygoner.drawPolygon(polygon, img, 0x00fa00, liner);
-                        polygoner.drawFuturePoint(polygon, img, 0x00fafa, liner, new Point2D(e.getX(), e.getY()));
+
+                    if(triangle.getPoints().length == 1)
+                    {
+                        liner.drawLine(img, triangle.getPoints()[0].getX(), triangle.getPoints()[0].getY(), e.getX(), e.getY(), 0x00fa00);
+                    }
+                    else if(triangle.getPoints().length == 2)
+                    {
+                        liner.drawLine(img, triangle.getPoints()[0].getX(), triangle.getPoints()[0].getY(),
+                                triangle.getPoints()[1].getX(), triangle.getPoints()[1].getY(), 0x00fa00);
+                        trianglener.drawFuturePoint(triangle, img, 0x00fafa, dottedLiner, new Point2D(e.getX(), e.getY()));
                     }
 
                 }
-                if(lineMode)
+                if(lineMode || dottedLineMode)
                 {
                     if(polygon.getPoints().length > 2)
                     {
@@ -91,11 +102,15 @@ public class Canvas {
                     {
                         polygon.addPoint2D(new Point2D(e.getX(), e.getY()));
                     }
-                    liner.drawLine(img, polygon.getPoints()[0].getX(), polygon.getPoints()[0].getY(), e.getX(), e.getY(), 0x00fa00);
-                }
-                if(dottedLineMode)
-                {
 
+                    if(lineMode)
+                    {
+                        liner.drawLine(img, polygon.getPoints()[0].getX(), polygon.getPoints()[0].getY(), e.getX(), e.getY(), 0x00fa00);
+                    }
+                    if(dottedLineMode)
+                    {
+                        dottedLiner.drawLine(img, polygon.getPoints()[0].getX(), polygon.getPoints()[0].getY(), e.getX(), e.getY(), 0x00fa00);;
+                    }
                 }
 
                 present();
@@ -111,16 +126,24 @@ public class Canvas {
                 {
                     polygon.addPoint2D(new Point2D(e.getX(), e.getY()));
                 }
+                if (triangle.getPoints().length < 1)
+                {
+                    triangle.addPoint2D(new Point2D(e.getX(), e.getY()));
+                }
                 if(trojuhelnikMode)
                 {
-                    if(polygon.getPoints().length > 3)
+                    if(triangle.getPoints().length == 4)
                     {
                         clear();
-                        polygon = new Polygon2D();
-                        polygon.addPoint2D(new Point2D(e.getX(), e.getY()));
+                        triangle = new Triangle2D();
+                        triangle.addPoint2D(new Point2D(e.getX(), e.getY()));
+                    }
+                    if(triangle.getPoints().length == 0)
+                    {
+                        triangle.addPoint2D(new Point2D(e.getX(), e.getY()));
                     }
                 }
-                if(lineMode)
+                if(lineMode || dottedLineMode)
                 {
                     clear();
                     polygon = new Polygon2D();
@@ -144,15 +167,18 @@ public class Canvas {
                 }
                 if(trojuhelnikMode)
                 {
-                    clear();
-                    if(polygon.getPoints().length < 3) {
-                        polygon.addPoint2D(new Point2D(e.getX(), e.getY()));
-                        polygoner.drawPolygon(polygon, img, 0x00fa00, liner);
-                    }
-                    else
+                    if(triangle.getPoints().length == 1)
                     {
-                        polygon = new Polygon2D();
+                        triangle.addPoint2D(new Point2D(e.getX(), e.getY()));
+                        liner.drawLine(img, triangle.getPoints()[0].getX(), triangle.getPoints()[0].getY(),
+                                triangle.getPoints()[1].getX(), triangle.getPoints()[1].getY(), 0x00fa00);
                     }
+                    if(triangle.getPoints().length == 2 ){
+                        triangle.addPoint2D(new Point2D(e.getX(), e.getY()));
+                        trianglener.drawTriangle(triangle, img, 0x00fa00, liner);
+                    }
+
+
 
                 }
 

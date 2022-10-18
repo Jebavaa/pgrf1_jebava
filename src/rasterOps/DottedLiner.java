@@ -26,18 +26,61 @@ public class DottedLiner<P> implements Liner<P> {
             y2 = helper;
         }
 
-        if(Math.abs(k) <= 1) {
-            for (int x = x1; x <= x2; x++) {
-                int y = (int) Math.round(k * x + q);
+        if(x2 - x1 == 0)
+        {
+            int preruseni = 0;
+            for (int y = y1; y <= y2; y++) {
+                int x = x1;
                 img.setPixel(x, y, pixelValue);
+                if(y == y1 || y == y1 + 1 || y == y1 + 2 || y == y1 + 3 || y == y2 || y == y2 - 1 || y == y2 - 2 || y == y2 - 3) {
+                    img.setPixel(x, y, pixelValue);
+                }
+                else if(preruseni <= 2) {
+                    img.setPixel(x, y, pixelValue);
+                }
+                if(preruseni == 6)
+                {
+                    preruseni = 0;
+                }
+                preruseni++;
             }
         }
+        else if(Math.abs(k) <= 1) {
+            int preruseni = 0;
+            for (int x = x1; x <= x2; x++) {
+                int y = (int) Math.round(k * x + q);
+                if(x == x1 || x == x1+1 || x == x1+2 || x == x1 + 3 || x == x2 || x == x2-1 || x == x2-2 || x == x2 -3) {
+                    img.setPixel(x, y, pixelValue);
+                }
+                else if(preruseni <= 2) {
+                    img.setPixel(x, y, pixelValue);
+                }
+                if(preruseni == 6)
+                {
+                    preruseni = 0;
+                }
+                preruseni++;
 
+
+
+            }
+        }
         else if(Math.abs(k) > 1)
         {
+            int preruseni = 0;
             for (int y = y1; y <= y2; y++) {
-                int x = (int) Math.round((y - q)/k);
-                img.setPixel(x, y, pixelValue);
+                int x = (int) Math.round((y - q) / k);
+                if (y == y1 || y == y1 + 1 || y == y1 + 2 || y == y1 + 3 || y == y2 || y == y2 - 1 || y == y2 - 2 || y == y2 - 3) {
+                    img.setPixel(x, y, pixelValue);
+                }
+                else if(preruseni <= 2) {
+                    img.setPixel(x, y, pixelValue);
+                }
+                if(preruseni == 6)
+                {
+                    preruseni = 0;
+                }
+                preruseni++;
             }
         }
     }

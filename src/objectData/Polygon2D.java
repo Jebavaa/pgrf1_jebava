@@ -22,6 +22,11 @@ public class Polygon2D {
         return pointsField;
     }
 
+    public List<Point2D> getPointsAsList()
+    {
+        return pointsList;
+    }
+
     public void addPoint2D(final @NotNull Point2D point) {
         pointsList.add(point);
     }

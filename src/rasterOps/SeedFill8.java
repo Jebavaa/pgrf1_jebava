@@ -6,14 +6,14 @@ import rasterData.RasterImage;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-public class SeedFill4<P> implements SeedFill<P> {
+public class SeedFill8<P> implements SeedFill<P> {
 
     @Override
     public void fill(@NotNull RasterImage<P> img, int x, int y,
                      @NotNull P pixelValue, @NotNull Predicate<P> isInArea) {
-        // Get pixel value at pixel adress (x, y)
+        // Get pixel value at pixel adress (c, r)
         // Test if pixel lies in area
-        // If so, set the pixel at (x, y) to the new pixelValue
+        // If so, set the pixel at (c, r) to the new pixelValue
         // Recursively for neighbourhood
 
         Optional<P> currentPixel = img.getPixel(x, y);
@@ -25,6 +25,11 @@ public class SeedFill4<P> implements SeedFill<P> {
         fill(img, x + 1, y, pixelValue, isInArea);
         fill(img, x, y + 1, pixelValue, isInArea);
         fill(img, x - 1, y, pixelValue, isInArea);
+        fill(img, x, y - 1, pixelValue, isInArea);
+
+        fill(img, x + 1, y - 1, pixelValue, isInArea);
+        fill(img, x - 1, y + 1, pixelValue, isInArea);
+        fill(img, x + 1, y + 1, pixelValue, isInArea);
         fill(img, x, y - 1, pixelValue, isInArea);
     }
 }

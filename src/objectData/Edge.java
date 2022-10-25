@@ -8,9 +8,18 @@ public class Edge {
     private final @NotNull Point2D start;
     private final @NotNull Point2D end;
 
+    int x1, x2, y1, y2;
+    double k, q;
+
     public Edge(final @NotNull Point2D start, final @NotNull Point2D end) {
         this.start = start;
         this.end = end;
+        x1 = start.getX();
+        y1 = start.getY();
+        x2 = end.getX();
+        y2 = end.getY();
+        k = (y2 - y1) / (double) (x2 - x1);
+        q = y1 - k * x1;
     }
 
     /**
@@ -38,8 +47,11 @@ public class Edge {
      * @return a new Edge shorter by one pixel
      */
     public @NotNull Edge shortened() {
-        // TODO
-        return new Edge(new Point2D(0,0), new Point2D(0,0));
+        if(start.getX() == end.getX()) {
+            return new Edge(start, new Point2D(end.getX(), end.getY() - 1);
+        }
+        return new Edge(start, new Point2D((int) Math.round(((y2 - 1) - q)/k), end.getY() - 1));
+
     }
 
     /**
@@ -47,7 +59,19 @@ public class Edge {
      * @return a single value representing the intersection's x coordinate
      */
     public int intersect(final int y) {
-        // TODO
-        return 0;
+        if(start.getX() == end.getX()) {
+            return start.getX();
+        }
+        int x = (int) Math.round((y - q)/k);
+        return x;
+    }
+
+    /**
+     * Returns whether this edge is horizontal
+     * @return
+     */
+    public boolean isHorizontal()
+    {
+        return start.getY() ==  end.getY();
     }
 }

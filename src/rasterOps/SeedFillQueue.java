@@ -7,7 +7,7 @@ import java.util.function.Predicate;
 
 public class SeedFillQueue<P> implements SeedFill<P> {
     @Override
-    public void fill(@NotNull RasterImage<P> img, int c, int r,
+    public void fill(@NotNull RasterImage<P> img, int x, int y,
                      @NotNull P pixelValue, @NotNull Predicate<P> isInArea) {
 
         // Intialize an empty queue

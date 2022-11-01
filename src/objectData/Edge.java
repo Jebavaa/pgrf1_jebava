@@ -46,9 +46,9 @@ public class Edge {
      * Returns this Edge shortened by one pixel, assumes start.y != end.y
      * @return a new Edge shorter by one pixel
      */
-    public @NotNull Edge shortened() {
+    public @NotNull Edge shorten() {
         if(start.getX() == end.getX()) {
-            return new Edge(start, new Point2D(end.getX(), end.getY() - 1);
+            return new Edge(start, new Point2D(end.getX(), end.getY() - 1));
         }
         return new Edge(start, new Point2D((int) Math.round(((y2 - 1) - q)/k), end.getY() - 1));
 
@@ -73,5 +73,22 @@ public class Edge {
     public boolean isHorizontal()
     {
         return start.getY() ==  end.getY();
+    }
+
+    public int getY1()
+    {
+        return start.getY();
+    }
+    public int getY2()
+    {
+        return end.getY();
+    }
+    public int getX1()
+    {
+        return start.getX();
+    }
+    public int getX2()
+    {
+        return end.getX();
     }
 }

@@ -29,11 +29,16 @@ public class Canvas {
     private final @NotNull Liner<Integer> dottedLiner;
     private final @NotNull Polygoner<Integer> polygoner;
     private final @NotNull Trianglener<Integer> trianglener;
+
+    private final @NotNull ScanLineImpl<Integer> scanLiner = new ScanLineImpl<Integer>();
     private int x1, y1, x2, y2;
+
+    private boolean fillMode = false;
     private boolean trojuhelnikMode = false;
     private boolean polygonMode = false;
     private boolean dottedLineMode = false;
     private boolean lineMode = true;
+
 
     Polygon2D polygon = new Polygon2D();
     Triangle2D triangle = new Triangle2D();
@@ -149,6 +154,10 @@ public class Canvas {
                     polygon = new Polygon2D();
                     polygon.addPoint2D(new Point2D(e.getX(), e.getY()));
                 }
+                if(fillMode)
+                {
+                    scanLiner.fill(img, polygon, polygoner, liner,  0x00aa00);
+                }
 
 
             }
@@ -203,6 +212,7 @@ public class Canvas {
                         polygonMode = false;
                         lineMode = false;
                         dottedLineMode = false;
+                        fillMode = false;
                     }
                 }
                 if(e.getKeyCode() == KeyEvent.VK_Z)
@@ -215,6 +225,7 @@ public class Canvas {
                         trojuhelnikMode = false;
                         lineMode = false;
                         dottedLineMode = false;
+                        fillMode = false;
                     }
                 }
                 if(e.getKeyCode() == KeyEvent.VK_U)
@@ -227,6 +238,7 @@ public class Canvas {
                         trojuhelnikMode = false;
                         lineMode = false;
                         polygonMode = false;
+                        fillMode = false;
                     }
                 }
                 if(e.getKeyCode() == KeyEvent.VK_I)
@@ -239,8 +251,22 @@ public class Canvas {
                         trojuhelnikMode = false;
                         dottedLineMode = false;
                         polygonMode = false;
+                        fillMode = false;
                     }
                 }
+                if(e.getKeyCode() == KeyEvent.VK_O)
+                {
+                    if(!fillMode)
+                    {
+                        fillMode = true;
+                        frame.setTitle("Výplň režim");
+                        trojuhelnikMode = false;
+                        dottedLineMode = false;
+                        polygonMode = false;
+                        lineMode = false;
+                    }
+                }
+                present();
             }
         });
 

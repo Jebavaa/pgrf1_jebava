@@ -33,7 +33,6 @@ public class Canvas {
     private final @NotNull ScanLineImpl<Integer> scanLiner = new ScanLineImpl<Integer>();
     private int x1, y1, x2, y2;
 
-    private boolean fillMode = false;
     private boolean trojuhelnikMode = false;
     private boolean polygonMode = false;
     private boolean dottedLineMode = false;
@@ -127,6 +126,7 @@ public class Canvas {
             @Override
             public void mousePressed(MouseEvent e) {
 
+
                 if (polygon.getPoints().length < 1)
                 {
                     polygon.addPoint2D(new Point2D(e.getX(), e.getY()));
@@ -153,10 +153,6 @@ public class Canvas {
                     clear();
                     polygon = new Polygon2D();
                     polygon.addPoint2D(new Point2D(e.getX(), e.getY()));
-                }
-                if(fillMode)
-                {
-                    scanLiner.fill(img, polygon, polygoner, liner,  0x00aa00);
                 }
 
 
@@ -200,71 +196,57 @@ public class Canvas {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_C) {
-                    clear();
-                    present();
+                    clearAll();
                 }
                 if (e.getKeyCode() == KeyEvent.VK_T) {
-                    clear();
                     if(!trojuhelnikMode)
                     {
+                        clearAll();
                         trojuhelnikMode = true;
                         frame.setTitle("Trojúhelník režim");
                         polygonMode = false;
                         lineMode = false;
-                        dottedLineMode = false;
-                        fillMode = false;
                     }
                 }
                 if(e.getKeyCode() == KeyEvent.VK_Z)
                 {
-                    clear();
                     if(!polygonMode)
                     {
+                        clearAll();
                         polygonMode = true;
                         frame.setTitle("Polygon režim");
                         trojuhelnikMode = false;
                         lineMode = false;
                         dottedLineMode = false;
-                        fillMode = false;
                     }
                 }
                 if(e.getKeyCode() == KeyEvent.VK_U)
                 {
-                    clear();
                     if(!dottedLineMode)
                     {
+                        clearAll();
                         dottedLineMode = true;
                         frame.setTitle("Přerušovaná čára režim");
                         trojuhelnikMode = false;
                         lineMode = false;
                         polygonMode = false;
-                        fillMode = false;
                     }
                 }
                 if(e.getKeyCode() == KeyEvent.VK_I)
                 {
-                    clear();
                     if(!lineMode)
                     {
+                        clearAll();
                         lineMode = true;
                         frame.setTitle("Čára režim");
                         trojuhelnikMode = false;
                         dottedLineMode = false;
                         polygonMode = false;
-                        fillMode = false;
                     }
                 }
                 if(e.getKeyCode() == KeyEvent.VK_O)
                 {
-                    if(!fillMode)
-                    {
-                        fillMode = true;
-                        frame.setTitle("Výplň režim");
-                        trojuhelnikMode = false;
-                        dottedLineMode = false;
-                        polygonMode = false;
-                        lineMode = false;
-                    }
+                    scanLiner.fill(img, polygon, polygoner, liner,  0x005900);
                 }
                 present();
             }
@@ -278,8 +260,16 @@ public class Canvas {
         panel.grabFocus();
     }
 
-    public void clear() {
+    public void clear()
+    {
         img.clear(0x2f2f2f);
+    }
+    public void clearAll()
+    {
+        clear();
+        polygon = new Polygon2D();
+        triangle = new Triangle2D();
+        present();
     }
 
     public void present(Graphics graphics) {

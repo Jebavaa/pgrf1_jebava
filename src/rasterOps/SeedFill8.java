@@ -11,9 +11,9 @@ public class SeedFill8<P> implements SeedFill<P> {
     @Override
     public void fill(@NotNull RasterImage<P> img, int x, int y,
                      @NotNull P pixelValue, @NotNull Predicate<P> isInArea) {
-        // Get pixel value at pixel adress (c, r)
+        // Get pixel value at pixel adress (x, y)
         // Test if pixel lies in area
-        // If so, set the pixel at (c, r) to the new pixelValue
+        // If so, set the pixel at (x, y) to the new pixelValue
         // Recursively for neighbourhood
 
         Optional<P> currentPixel = img.getPixel(x, y);

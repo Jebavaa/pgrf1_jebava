@@ -1,6 +1,7 @@
 package objectData;
 
 import org.jetbrains.annotations.NotNull;
+import transforms.Mat3;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -8,9 +9,14 @@ import java.util.List;
 
 public class Polygon2D {
 
-    private final @NotNull List<Point2D> pointsList = new ArrayList<>();
+    private @NotNull List<Point2D> pointsList = new ArrayList<>();
     
     private Point2D[] pointsField;
+
+    public Polygon2D()
+    {
+        this.pointsList = new ArrayList<Point2D>();
+    }
 
     public Point2D[] getPoints() {
         int i = 0;
@@ -48,5 +54,12 @@ public class Polygon2D {
 
     public void addPoint2D(final @NotNull Point2D point) {
         pointsList.add(point);
+    }
+
+    public Polygon2D transform(final @NotNull Mat3 mat3)
+    {
+        Polygon2D result = new Polygon2D();
+
+        return result;
     }
 }

@@ -16,6 +16,8 @@ public class Polygoner<P> {
     public void drawPolygon(final @NotNull Polygon2D polygon, final @NotNull RasterImage<P> img,
                             final @NotNull P pixelValue, final @NotNull Liner<P> liner) {
 
+        //Iterator<Point2D> iterator = new Iterator<Point2D>()
+
         Point2D[] points = polygon.getPoints();
 
 

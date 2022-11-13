@@ -32,13 +32,13 @@ public class SeedFill8<P> implements SeedFill<P> {
         if(img.getPixel(x, y-1).equals(BGColour))
         fill(img, x, y - 1, pixelValue, BGColour);
 
-        if(img.getPixel(x+1, y-1).equals(BGColour))
+        if(img.getPixel(x+1, y).equals(BGColour) || img.getPixel(x, y-1).equals(BGColour))
         fill(img, x + 1, y - 1, pixelValue, BGColour);
-        if(img.getPixel(x-1, y+1).equals(BGColour))
+        if(img.getPixel(x-1, y).equals(BGColour) || img.getPixel(x, y+1).equals(BGColour))
         fill(img, x - 1, y + 1, pixelValue, BGColour);
-        if(img.getPixel(x+1, y+1).equals(BGColour))
+        if(img.getPixel(x+1, y).equals(BGColour) ||img.getPixel(x, y+1).equals(BGColour))
         fill(img, x + 1, y + 1, pixelValue, BGColour);
-        if(img.getPixel(x-1, y-1).equals(BGColour))
+        if(img.getPixel(x, y-1).equals(BGColour) ||img.getPixel(x-1, y).equals(BGColour))
         fill(img, x-1, y - 1, pixelValue, BGColour);
     }
 

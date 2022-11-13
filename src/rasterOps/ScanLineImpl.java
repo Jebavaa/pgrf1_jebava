@@ -67,9 +67,7 @@ public class ScanLineImpl<P> implements ScanLine<P>
                         {
                             liner.drawLine(img, intersections.get(i).getX()+1, intersections.get(i).getY(),
                                     intersections.get(i + 1).getX() -1, intersections.get(i + 1).getY(), polygonPixel);
-
                         }
-
                 }
             }
         }
@@ -83,6 +81,70 @@ public class ScanLineImpl<P> implements ScanLine<P>
         // draw lines between odd and even intersections
         // draw polygon
 
+    }
+
+    public void fillPattern(final @NotNull RasterImage<P> img, final @NotNull Polygon2D polygon,
+                     final @NotNull Polygoner<P> polygoner,
+                     final @NotNull Liner<P> liner, final @NotNull P polygonPixel)
+    {
+
+        final @NotNull List<Point2D> points = polygon.getPointsAsList();
+        @NotNull List<Edge> edges = polygon.getEdges();
+
+        List<Edge> newEdges = new ArrayList<Edge>();
+
+        for (Edge edge : edges)
+        {
+            if (!edge.isHorizontal())
+            {
+                newEdges.add(edge.oriented().shorten());
+            }
+        }
+
+        edges.clear();
+        edges = newEdges;
+
+
+        Point2D minMax = findMaxMin(edges); // x je min, y je max (ve skutečnosti jsou obě y)
+
+        int mezera = 0; // ovlivňuje jaké čáry se budou nebo nebudou vykreslovat
+
+        for (int l = minMax.getX(); l < minMax.getY(); l++)
+        {
+            if(mezera > 1)
+            {
+                mezera = 0;
+                continue;
+            }
+            mezera++;
+            List<Point2D> intersections = new ArrayList<Point2D>();
+
+
+            for (Edge edge : edges)
+            {
+
+                if (edge.hasIntersection(l))
+                {
+                    intersections.add(new Point2D(edge.intersect(l), l));
+                }
+            }
+            Collections.sort(intersections, Comparator.comparingInt(Point2D::getX));
+
+
+            for (int i = 0; i < intersections.size(); i++)
+            {
+                if (i + 1 < intersections.size())
+                {
+                        if (i % 2 == 0)
+                        {
+                            liner.drawLine(img, intersections.get(i).getX() + 1, intersections.get(i).getY(),
+                                    intersections.get(i + 1).getX() - 1, intersections.get(i + 1).getY(), polygonPixel);
+
+                        }
+
+                }
+            }
+        }
     }
 
     public Point2D findMaxMin(List<Edge> edges)

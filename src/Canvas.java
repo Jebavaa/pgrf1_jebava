@@ -35,11 +35,11 @@ public class Canvas
     private int x1, y1, x2, y2;
     private Integer BGColour = 0x2f2f2f;
 
+    private boolean seedFill4PatternMode = false;
     private boolean seedFill4Mode = false;
     private boolean seedFill8Mode = false;
-    private boolean polygonMode = false;
-    private boolean dottedLineMode = false;
-    private boolean lineMode = true;
+    private boolean polygonMode = true;
+
 
 
     Polygon2D polygon = new Polygon2D();
@@ -89,29 +89,6 @@ public class Canvas
                     polygoner.drawPolygon(polygon, img, 0x00fa00, liner);
                     polygoner.drawFuturePoint(polygon, img, 0x00fafa, dottedLiner, new Point2D(e.getX(), e.getY()));
                 }
-                if (lineMode || dottedLineMode)
-                {
-                    clear();
-                    if (polygon.getPoints().length > 2)
-                    {
-                        polygon = new Polygon2D();
-                    }
-                    if (polygon.getPoints().length == 0)
-                    {
-                        polygon.addPoint2D(new Point2D(e.getX(), e.getY()));
-                    }
-
-                    if (lineMode)
-                    {
-                        clear();
-                        liner.drawLine(img, polygon.getPoints()[0].getX(), polygon.getPoints()[0].getY(), e.getX(), e.getY(), 0x00fa00);
-                    }
-                    if (dottedLineMode)
-                    {
-                        clear();
-                        dottedLiner.drawLine(img, polygon.getPoints()[0].getX(), polygon.getPoints()[0].getY(), e.getX(), e.getY(), 0x00fa00);
-                    }
-                }
 
                 present();
             }
@@ -129,12 +106,6 @@ public class Canvas
                 {
                     polygon.addPoint2D(new Point2D(e.getX(), e.getY()));
                 }
-                if (lineMode || dottedLineMode)
-                {
-                    clear();
-                    polygon = new Polygon2D();
-                    polygon.addPoint2D(new Point2D(e.getX(), e.getY()));
-                }
                 if(seedFill4Mode)
                 {
                     seedFill4.fill(img, e.getX(), e.getY(), 0x005900, img.getPixel(0,0));
@@ -142,6 +113,10 @@ public class Canvas
                 if(seedFill8Mode)
                 {
                     seedFill8.fill(img, e.getX(), e.getY(), 0x005900, img.getPixel(0,0));
+                }
+                if(seedFill4PatternMode)
+                {
+                    seedFill4.fillPatern(img, e.getX(), e.getY(), 0x005900, 0x552200, img.getPixel(0,0));
                 }
                 present();
 
@@ -177,13 +152,14 @@ public class Canvas
                 {
                     clearAll();
                 }
+                /*
                 if (e.getKeyCode() == KeyEvent.VK_T)
                 {
                     clear();
                     polygon = polygon.transform(new Mat3Transl2D(1,0));
                     polygoner.drawPolygon(polygon, img, 0xffffff, liner);
                     present();
-                }
+                }*/
                 if (e.getKeyCode() == KeyEvent.VK_Z)
                 {
                     if (!polygonMode)
@@ -191,33 +167,17 @@ public class Canvas
                         clearAll();
                         polygonMode = true;
                         frame.setTitle("Polygon režim");
-                        lineMode = false;
-                        dottedLineMode = false;
                         seedFill8Mode = false;
                         seedFill4Mode = false;
+                        seedFill4PatternMode = false;
                     }
                 }
                 if (e.getKeyCode() == KeyEvent.VK_U)
                 {
-                    if (!dottedLineMode)
+                    if (!seedFill4PatternMode)
                     {
-                        clearAll();
-                        dottedLineMode = true;
-                        frame.setTitle("Přerušovaná čára režim");
-                        lineMode = false;
-                        polygonMode = false;
-                        seedFill8Mode = false;
-                        seedFill4Mode = false;
-                    }
-                }
-                if (e.getKeyCode() == KeyEvent.VK_I)
-                {
-                    if (!lineMode)
-                    {
-                        clearAll();
-                        lineMode = true;
-                        frame.setTitle("Čára režim");
-                        dottedLineMode = false;
+                        seedFill4PatternMode = true;
+                        frame.setTitle("Pattern seedFill4 režim");
                         polygonMode = false;
                         seedFill8Mode = false;
                         seedFill4Mode = false;
@@ -230,9 +190,8 @@ public class Canvas
                         seedFill4Mode = true;
                         seedFill8Mode = false;
                         frame.setTitle("SeedFill4 režim");
-                        dottedLineMode = false;
-                        lineMode = false;
                         polygonMode = false;
+                        seedFill4PatternMode = false;
                     }
                 }
                 if (e.getKeyCode() == KeyEvent.VK_R)
@@ -242,14 +201,18 @@ public class Canvas
                         seedFill8Mode = true;
                         seedFill4Mode = false;
                         frame.setTitle("SeedFill8 režim");
-                        dottedLineMode = false;
-                        lineMode = false;
                         polygonMode = false;
+                        seedFill4PatternMode = false;
+
                     }
                 }
                 if (e.getKeyCode() == KeyEvent.VK_O)
                 {
                     scanLiner.fill(img, polygon, polygoner, liner, 0x005900);
+                }
+                if (e.getKeyCode() == KeyEvent.VK_I)
+                {
+                    scanLiner.fillPattern(img, polygon, polygoner, liner, 0x22550A);
                 }
                 present();
             }

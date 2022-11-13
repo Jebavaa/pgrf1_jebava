@@ -17,11 +17,10 @@ public interface SeedFill<P> {
      * @param x seed column address
      * @param y seed row address
      * @param pixelValue pixel value used for filling
-     * @param isInArea predicate deciding whether a pixel lies inside the polygon
+     * @param BGColour colour of the background
      */
     void fill(final @NotNull RasterImage<P> img, int x, int y,
-              @NotNull P pixelValue, @NotNull Predicate<P> isInArea);
-
+              @NotNull P pixelValue,  @NotNull P BGColour);
 
 
 }

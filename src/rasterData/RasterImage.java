@@ -28,7 +28,7 @@ public interface RasterImage<P> {
      * @param y row address
      * @return
      */
-    Optional<P> getPixel(final int x, final int y);
+    P getPixel(final int x, final int y);
 
     /**
      * Overrides the current pixel value with the new one specified by the given pixel address
@@ -44,6 +44,5 @@ public interface RasterImage<P> {
      */
     void clear(final @NotNull P newValue);
 
-    void setRGB(final int x, final int y, final @NotNull P newValue);
 
 }

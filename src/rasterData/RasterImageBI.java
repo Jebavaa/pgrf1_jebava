@@ -26,11 +26,12 @@ public class RasterImageBI implements RasterImage<Integer>, Presentable<Graphics
     }
 
     @Override
-    public @NotNull Optional<Integer> getPixel(final int x, final int y) {
+    public @NotNull Integer getPixel(final int x, final int y) {
         if(getWidth() > x && getHeight() > y && x >= 0 && y >= 0){
-            return Optional.of(bufferedImage.getRGB(x, y));
+            return bufferedImage.getRGB(x, y);
+
         }
-        return Optional.empty();
+        return 0xffffff;
     }
 
     @Override
@@ -55,10 +56,6 @@ public class RasterImageBI implements RasterImage<Integer>, Presentable<Graphics
         return device;
     }
 
-    public void setRGB(final @NotNull int x, final @NotNull int y, final @NotNull Integer newValue)
-    {
-        bufferedImage.setRGB(x, y, newValue);
-    }
 
 
 

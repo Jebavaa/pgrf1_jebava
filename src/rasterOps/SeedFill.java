@@ -3,6 +3,7 @@ package rasterOps;
 import org.jetbrains.annotations.NotNull;
 import rasterData.*;
 
+import java.util.Optional;
 import java.util.function.Predicate;
 
 /**
@@ -20,7 +21,7 @@ public interface SeedFill<P> {
      * @param BGColour colour of the background
      */
     void fill(final @NotNull RasterImage<P> img, int x, int y,
-              @NotNull P pixelValue,  @NotNull P BGColour);
+              @NotNull Optional<P> pixelValue, @NotNull P BGColour);
 
 
 }

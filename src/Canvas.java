@@ -14,6 +14,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 public class Canvas
@@ -108,11 +109,11 @@ public class Canvas
                 }
                 if(seedFill4Mode)
                 {
-                    seedFill4.fill(img, e.getX(), e.getY(), 0x005900, img.getPixel(0,0));
+                    seedFill4.fill(img, e.getX(), e.getY(), Optional.of(0x005900), img.getPixel(0,0));
                 }
                 if(seedFill8Mode)
                 {
-                    seedFill8.fill(img, e.getX(), e.getY(), 0x005900, img.getPixel(0,0));
+                    seedFill8.fill(img, e.getX(), e.getY(), Optional.of(0x005933), img.getPixel(0,0));
                 }
                 if(seedFill4PatternMode)
                 {

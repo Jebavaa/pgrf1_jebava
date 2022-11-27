@@ -33,6 +33,9 @@ public class Canvas
     private final @NotNull WireRenderer wireRenderer;
     private List<Object3D> scene;
     Camera camera;
+    boolean pyramidMode = false;
+    boolean cubeMode = false;
+    int x, y = 0;
 
     private Integer BGColour = 0x2f2f2f;
 
@@ -51,7 +54,8 @@ public class Canvas
         liner = new TrivialLiner<>();
         scene = new ArrayList<Object3D>();
         Cube cube = new Cube();
-        double cameraSpeed = 0.1;
+        double cameraSpeed = 0.010;
+        Object3D activeObject = cube;
 
 
         // View
@@ -68,7 +72,7 @@ public class Canvas
         //MVP - Model, View, Projection
         Mat4PerspRH projectionMatrix = new Mat4PerspRH(Math.toRadians(60),height/(double) width,0.1,200 ); // úhel kamery, poměr, minimal render distance, render distance
         wireRenderer = new WireRenderer(img, 0x22ff00, liner, camera.getViewMatrix(), projectionMatrix);
-
+        scene.add(cube);
 
 
         panel = new JPanel()
@@ -90,6 +94,31 @@ public class Canvas
             @Override
             public void mouseDragged(MouseEvent e)
             {
+                clear();
+
+
+
+                if(e.getY() > y)
+                {
+                    camera = camera.up(cameraSpeed);
+                }
+                if (e.getY() < y)
+                {
+                    camera = camera.down(cameraSpeed);
+                }
+                if(e.getX() > x)
+                {
+                    camera = camera.left(cameraSpeed);
+                }
+                if(e.getX() < x)
+                {
+                    camera = camera.right(cameraSpeed);
+                }
+                y = e.getY();
+                x = e.getX();
+
+
+
                 present();
             }
         });
@@ -108,7 +137,8 @@ public class Canvas
 
                 clear();
 
-                scene.add(cube);
+                x = e.getX();
+                y = e.getY();
 
                 present();
             }
@@ -154,49 +184,41 @@ public class Canvas
                 clear();
 
                 //region Posouvání kamery
-                if (e.getKeyCode() == KeyEvent.VK_RIGHT  && !e.isShiftDown())
+                if (e.getKeyCode() == KeyEvent.VK_D  && !e.isShiftDown())
                 {
                     camera = camera.right(cameraSpeed);
-                    wireRenderer.setView(camera.getViewMatrix());
                 }
-                if (e.getKeyCode() == KeyEvent.VK_LEFT && !e.isShiftDown())
+                if (e.getKeyCode() == KeyEvent.VK_A && !e.isShiftDown())
                 {
                     camera = camera.left(cameraSpeed);
-                    wireRenderer.setView(camera.getViewMatrix());
                 }
-                if (e.getKeyCode() == KeyEvent.VK_UP && !e.isShiftDown())
+                if (e.getKeyCode() == KeyEvent.VK_W && !e.isShiftDown())
                 {
                     camera = camera.up(cameraSpeed);
-                    wireRenderer.setView(camera.getViewMatrix());
                 }
-                if (e.getKeyCode() == KeyEvent.VK_DOWN && !e.isShiftDown())
+                if (e.getKeyCode() == KeyEvent.VK_S && !e.isShiftDown())
                 {
                     camera = camera.down(cameraSpeed);
-                    wireRenderer.setView(camera.getViewMatrix());
                 }
-                if ((e.getKeyCode() == KeyEvent.VK_DOWN && e.getKeyCode() == KeyEvent.VK_LEFT) && !e.isShiftDown())
+                if ((e.getKeyCode() == KeyEvent.VK_S && e.getKeyCode() == KeyEvent.VK_A) && !e.isShiftDown())
                 {
                     camera = camera.down(cameraSpeed);
                     camera = camera.left(cameraSpeed);
-                    wireRenderer.setView(camera.getViewMatrix());
                 }
-                if ((e.getKeyCode() == KeyEvent.VK_DOWN && e.getKeyCode() == KeyEvent.VK_RIGHT) && !e.isShiftDown())
+                if ((e.getKeyCode() == KeyEvent.VK_S && e.getKeyCode() == KeyEvent.VK_D) && !e.isShiftDown())
                 {
                     camera = camera.down(cameraSpeed);
                     camera = camera.right(cameraSpeed);
-                    wireRenderer.setView(camera.getViewMatrix());
                 }
-                if ((e.getKeyCode() == KeyEvent.VK_UP && e.getKeyCode() == KeyEvent.VK_RIGHT) && !e.isShiftDown())
+                if ((e.getKeyCode() == KeyEvent.VK_W && e.getKeyCode() == KeyEvent.VK_D) && !e.isShiftDown())
                 {
                     camera = camera.up(cameraSpeed);
                     camera = camera.right(cameraSpeed);
-                    wireRenderer.setView(camera.getViewMatrix());
                 }
-                if ((e.getKeyCode() == KeyEvent.VK_UP && e.getKeyCode() == KeyEvent.VK_LEFT) && !e.isShiftDown())
+                if ((e.getKeyCode() == KeyEvent.VK_W && e.getKeyCode() == KeyEvent.VK_A) && !e.isShiftDown())
                 {
                     camera = camera.up(cameraSpeed);
                     camera = camera.left(cameraSpeed);
-                    wireRenderer.setView(camera.getViewMatrix());
                 }
                 //endregion
 
@@ -204,24 +226,43 @@ public class Canvas
                 if (e.getKeyCode() == KeyEvent.VK_LEFT && e.isShiftDown())
                 {
                     camera = camera.addAzimuth(Math.toRadians(5));
-                    wireRenderer.setView(camera.getViewMatrix());
                 }
                 if (e.getKeyCode() == KeyEvent.VK_RIGHT && e.isShiftDown())
                 {
                     camera = camera.addAzimuth(Math.toRadians(-5));
-                    wireRenderer.setView(camera.getViewMatrix());
                 }
                 if (e.getKeyCode() == KeyEvent.VK_UP && e.isShiftDown())
                 {
                     camera = camera.addZenith(Math.toRadians(5));
-                    wireRenderer.setView(camera.getViewMatrix());
                 }
                 if (e.getKeyCode() == KeyEvent.VK_DOWN && e.isShiftDown())
                 {
                     camera = camera.addZenith(Math.toRadians(-5));
-                    wireRenderer.setView(camera.getViewMatrix());
                 }
                 //endregion
+
+
+                if(e.getKeyCode() == KeyEvent.VK_1 && !cubeMode) // Ovládání kostky
+                {
+                    cubeMode = true;
+                    pyramidMode = false;
+                }
+                if(e.getKeyCode() == KeyEvent.VK_2 && !pyramidMode) // Ovládání jehlanu
+                {
+                    cubeMode = false;
+                    pyramidMode = true;
+                }
+
+                if(cubeMode)
+                {
+
+                }
+
+                if(pyramidMode)
+                {
+
+                }
+
 
                 present();
             }
@@ -259,6 +300,7 @@ public class Canvas
 
     public void present()
     {
+        wireRenderer.setView(camera.getViewMatrix());
         wireRenderer.renderScene(scene);
         final @Nullable Graphics g = panel.getGraphics();
         if (g != null)
@@ -270,7 +312,7 @@ public class Canvas
 
     public void start()
     {
-        img.setPixel(img.getWidth() / 2, img.getHeight() / 2, 0xffff00);
+        //img.setPixel(img.getWidth() / 2, img.getHeight() / 2, 0xffff00);
         present();
     }
 

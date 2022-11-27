@@ -1,3 +1,5 @@
+import objectData.Cube;
+import objectData.Object3D;
 import objectData.Point2D;
 import objectData.Polygon2D;
 import org.jetbrains.annotations.NotNull;
@@ -6,7 +8,10 @@ import rasterData.Presentable;
 import rasterData.RasterImage;
 import rasterData.RasterImageBI;
 import rasterOps.*;
+import transforms.Camera;
 import transforms.Mat3Transl2D;
+import transforms.Mat4PerspRH;
+import transforms.Vec3D;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,6 +19,8 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Predicate;
 
 public class Canvas
@@ -26,25 +33,8 @@ public class Canvas
     RasterImage<Integer> img;
     private final @NotNull Presentable<Graphics> presenter;
     private final @NotNull Liner<Integer> liner;
-    private final @NotNull Liner<Integer> dottedLiner;
-    private final @NotNull Polygoner<Integer> polygoner;
 
-    private final @NotNull ScanLineImpl<Integer> scanLiner = new ScanLineImpl<Integer>();
-    private final @NotNull SeedFill4<Integer> seedFill4 = new SeedFill4<Integer>();
-    private final @NotNull SeedFill8<Integer> seedFill8 = new SeedFill8<Integer>();
-    private int x1, y1, x2, y2;
     private Integer BGColour = 0x2f2f2f;
-
-    private boolean seedFill4PatternMode = false;
-    private boolean seedFill4Mode = false;
-    private boolean seedFill8Mode = false;
-    private boolean polygonMode = true;
-
-
-
-    Polygon2D polygon = new Polygon2D();
-
-
 
     public Canvas(int width, int height)
     {
@@ -59,8 +49,27 @@ public class Canvas
         img = auxRasterImage;
         presenter = auxRasterImage;
         liner = new TrivialLiner<>();
-        dottedLiner = new DottedLiner<>();
-        polygoner = new Polygoner<>();
+        final WireRenderer wireRenderer;
+        Camera camera;
+        Cube cube = new Cube();
+
+
+        // View
+        camera = new Camera(
+                new Vec3D(-2,-3,2), // position
+                Math.toRadians(60), // azimuth
+                Math.toRadians(-30),  // zenith
+                Math.toRadians(90), // radius
+                false // first person
+        );
+
+
+        // Projection
+        //MVP - Model, View, Projection
+        Mat4PerspRH projectionMatrix = new Mat4PerspRH(Math.toRadians(60),height/(double) width,0.1,200 ); // úhel kamery, poměr, minimal render distance, render distance
+        wireRenderer = new WireRenderer(img, 0x22ff00, liner, camera.getViewMatrix(), projectionMatrix);
+
+
 
         panel = new JPanel()
         {
@@ -81,15 +90,6 @@ public class Canvas
             @Override
             public void mouseDragged(MouseEvent e)
             {
-
-
-                if (polygonMode)
-                {
-                    clear();
-                    polygoner.drawPolygon(polygon, img, 0x00fa00, liner);
-                    polygoner.drawFuturePoint(polygon, img, 0x00fafa, dottedLiner, new Point2D(e.getX(), e.getY()));
-                }
-
                 present();
             }
         });
@@ -101,26 +101,18 @@ public class Canvas
             public void mousePressed(MouseEvent e)
             {
 
+                //Solid cube2 = new Cube();
+                //Mat4 scale = new Mat4Scale(0.5);
+                //Mat4 tra = new Mat4Transl(0.2,0,0);
+                //cube2.setModel(scale.mul(tra));
+                clear();
 
-                if (polygon.getPoints().length < 1)
-                {
-                    polygon.addPoint2D(new Point2D(e.getX(), e.getY()));
-                }
-                if(seedFill4Mode)
-                {
-                    seedFill4.fill(img, e.getX(), e.getY(), 0x005900, img.getPixel(0,0));
-                }
-                if(seedFill8Mode)
-                {
-                    seedFill8.fill(img, e.getX(), e.getY(), 0x005900, img.getPixel(0,0));
-                }
-                if(seedFill4PatternMode)
-                {
-                    seedFill4.fillPatern(img, e.getX(), e.getY(), 0x005900, 0x552200, img.getPixel(0,0));
-                }
+                Object3D cube = new Cube();
+                List<Object3D> scene = new ArrayList<Object3D>();
+                scene.add(cube);
+
+                wireRenderer.renderScene(scene);
                 present();
-
-
             }
         });
 
@@ -129,15 +121,6 @@ public class Canvas
             @Override
             public void mouseReleased(MouseEvent e)
             {
-
-                if (polygonMode)
-                {
-
-                    clear();
-                    polygon.addPoint2D(new Point2D(e.getX(), e.getY()));
-                    polygoner.drawPolygon(polygon, img, 0x00fa00, liner);
-                }
-
                 present();
             }
         });
@@ -150,70 +133,9 @@ public class Canvas
             {
                 if (e.getKeyCode() == KeyEvent.VK_C)
                 {
-                    clearAll();
+                    //clearAll();
                 }
-                /*
-                if (e.getKeyCode() == KeyEvent.VK_T)
-                {
-                    clear();
-                    polygon = polygon.transform(new Mat3Transl2D(1,0));
-                    polygoner.drawPolygon(polygon, img, 0xffffff, liner);
-                    present();
-                }*/
-                if (e.getKeyCode() == KeyEvent.VK_Z)
-                {
-                    if (!polygonMode)
-                    {
-                        clearAll();
-                        polygonMode = true;
-                        frame.setTitle("Polygon režim");
-                        seedFill8Mode = false;
-                        seedFill4Mode = false;
-                        seedFill4PatternMode = false;
-                    }
-                }
-                if (e.getKeyCode() == KeyEvent.VK_U)
-                {
-                    if (!seedFill4PatternMode)
-                    {
-                        seedFill4PatternMode = true;
-                        frame.setTitle("Pattern seedFill4 režim");
-                        polygonMode = false;
-                        seedFill8Mode = false;
-                        seedFill4Mode = false;
-                    }
-                }
-                if (e.getKeyCode() == KeyEvent.VK_P)
-                {
-                    if (!seedFill4Mode)
-                    {
-                        seedFill4Mode = true;
-                        seedFill8Mode = false;
-                        frame.setTitle("SeedFill4 režim");
-                        polygonMode = false;
-                        seedFill4PatternMode = false;
-                    }
-                }
-                if (e.getKeyCode() == KeyEvent.VK_R)
-                {
-                    if (!seedFill8Mode)
-                    {
-                        seedFill8Mode = true;
-                        seedFill4Mode = false;
-                        frame.setTitle("SeedFill8 režim");
-                        polygonMode = false;
-                        seedFill4PatternMode = false;
 
-                    }
-                }
-                if (e.getKeyCode() == KeyEvent.VK_O)
-                {
-                    scanLiner.fill(img, polygon, polygoner, liner, 0x005900);
-                }
-                if (e.getKeyCode() == KeyEvent.VK_I)
-                {
-                    scanLiner.fillPattern(img, polygon, polygoner, liner, 0x22550A);
-                }
                 present();
             }
 
@@ -234,12 +156,14 @@ public class Canvas
         img.clear(BGColour);
     }
 
+    /*
     public void clearAll()
     {
         clear();
-        polygon = new Polygon2D();
+
         present();
     }
+*/
 
     public void present(Graphics graphics)
     {

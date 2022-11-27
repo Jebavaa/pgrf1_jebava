@@ -3,12 +3,15 @@ package rasterOps;
 import org.jetbrains.annotations.NotNull;
 import rasterData.RasterImage;
 
+import java.util.Optional;
+
 
 public class SeedFill4<P> implements SeedFill<P> {
 
     @Override
     public void fill(@NotNull RasterImage<P> img, int x, int y,
-                     @NotNull P pixelValue, @NotNull P BGColour) {
+                     @NotNull Optional<P> pixelValue, @NotNull P BGColour)
+    {
 
 
         // Get pixel value at pixel address (x, y)
@@ -20,8 +23,12 @@ public class SeedFill4<P> implements SeedFill<P> {
         {
             return;
         }
+        if(!pixelValue.isPresent())
+        {
+            return;
+        }
 
-        img.setPixel(x, y, pixelValue);
+        img.setPixel(x, y, pixelValue.get());
         if(img.getPixel(x+1, y).equals(BGColour))
         {
             fill(img, x + 1, y, pixelValue, BGColour);

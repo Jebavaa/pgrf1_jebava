@@ -15,10 +15,7 @@ import transforms.Vec3D;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
@@ -33,6 +30,9 @@ public class Canvas
     RasterImage<Integer> img;
     private final @NotNull Presentable<Graphics> presenter;
     private final @NotNull Liner<Integer> liner;
+    private final @NotNull WireRenderer wireRenderer;
+    private List<Object3D> scene;
+    Camera camera;
 
     private Integer BGColour = 0x2f2f2f;
 
@@ -49,9 +49,9 @@ public class Canvas
         img = auxRasterImage;
         presenter = auxRasterImage;
         liner = new TrivialLiner<>();
-        final WireRenderer wireRenderer;
-        Camera camera;
+        scene = new ArrayList<Object3D>();
         Cube cube = new Cube();
+        double cameraSpeed = 0.1;
 
 
         // View
@@ -105,13 +105,11 @@ public class Canvas
                 //Mat4 scale = new Mat4Scale(0.5);
                 //Mat4 tra = new Mat4Transl(0.2,0,0);
                 //cube2.setModel(scale.mul(tra));
+
                 clear();
 
-                Object3D cube = new Cube();
-                List<Object3D> scene = new ArrayList<Object3D>();
                 scene.add(cube);
 
-                wireRenderer.renderScene(scene);
                 present();
             }
         });
@@ -125,16 +123,105 @@ public class Canvas
             }
         });
 
+        //region Oddalování a přibližování kamery
+        panel.addMouseWheelListener(new MouseAdapter()
+        {
+            @Override
+            public void mouseWheelMoved(MouseWheelEvent e)
+            {
+                clear();
+                if (e.getWheelRotation() < 0)
+                {
+                    camera = camera.addRadius(Math.toRadians(5));
+                    wireRenderer.setView(camera.getViewMatrix());
+                }
+                else
+                {
+                    camera = camera.addRadius(Math.toRadians(-5));
+                    wireRenderer.setView(camera.getViewMatrix());
+                }
+                present();
+            }
+        });
+        //endregion
+
 
         panel.addKeyListener(new KeyAdapter()
         {
             @Override
             public void keyPressed(KeyEvent e)
             {
-                if (e.getKeyCode() == KeyEvent.VK_C)
+                clear();
+
+                //region Posouvání kamery
+                if (e.getKeyCode() == KeyEvent.VK_RIGHT  && !e.isShiftDown())
                 {
-                    //clearAll();
+                    camera = camera.right(cameraSpeed);
+                    wireRenderer.setView(camera.getViewMatrix());
                 }
+                if (e.getKeyCode() == KeyEvent.VK_LEFT && !e.isShiftDown())
+                {
+                    camera = camera.left(cameraSpeed);
+                    wireRenderer.setView(camera.getViewMatrix());
+                }
+                if (e.getKeyCode() == KeyEvent.VK_UP && !e.isShiftDown())
+                {
+                    camera = camera.up(cameraSpeed);
+                    wireRenderer.setView(camera.getViewMatrix());
+                }
+                if (e.getKeyCode() == KeyEvent.VK_DOWN && !e.isShiftDown())
+                {
+                    camera = camera.down(cameraSpeed);
+                    wireRenderer.setView(camera.getViewMatrix());
+                }
+                if ((e.getKeyCode() == KeyEvent.VK_DOWN && e.getKeyCode() == KeyEvent.VK_LEFT) && !e.isShiftDown())
+                {
+                    camera = camera.down(cameraSpeed);
+                    camera = camera.left(cameraSpeed);
+                    wireRenderer.setView(camera.getViewMatrix());
+                }
+                if ((e.getKeyCode() == KeyEvent.VK_DOWN && e.getKeyCode() == KeyEvent.VK_RIGHT) && !e.isShiftDown())
+                {
+                    camera = camera.down(cameraSpeed);
+                    camera = camera.right(cameraSpeed);
+                    wireRenderer.setView(camera.getViewMatrix());
+                }
+                if ((e.getKeyCode() == KeyEvent.VK_UP && e.getKeyCode() == KeyEvent.VK_RIGHT) && !e.isShiftDown())
+                {
+                    camera = camera.up(cameraSpeed);
+                    camera = camera.right(cameraSpeed);
+                    wireRenderer.setView(camera.getViewMatrix());
+                }
+                if ((e.getKeyCode() == KeyEvent.VK_UP && e.getKeyCode() == KeyEvent.VK_LEFT) && !e.isShiftDown())
+                {
+                    camera = camera.up(cameraSpeed);
+                    camera = camera.left(cameraSpeed);
+                    wireRenderer.setView(camera.getViewMatrix());
+                }
+                //endregion
+
+                //region Otáčení kamery
+                if (e.getKeyCode() == KeyEvent.VK_LEFT && e.isShiftDown())
+                {
+                    camera = camera.addAzimuth(Math.toRadians(5));
+                    wireRenderer.setView(camera.getViewMatrix());
+                }
+                if (e.getKeyCode() == KeyEvent.VK_RIGHT && e.isShiftDown())
+                {
+                    camera = camera.addAzimuth(Math.toRadians(-5));
+                    wireRenderer.setView(camera.getViewMatrix());
+                }
+                if (e.getKeyCode() == KeyEvent.VK_UP && e.isShiftDown())
+                {
+                    camera = camera.addZenith(Math.toRadians(5));
+                    wireRenderer.setView(camera.getViewMatrix());
+                }
+                if (e.getKeyCode() == KeyEvent.VK_DOWN && e.isShiftDown())
+                {
+                    camera = camera.addZenith(Math.toRadians(-5));
+                    wireRenderer.setView(camera.getViewMatrix());
+                }
+                //endregion
 
                 present();
             }
@@ -172,6 +259,7 @@ public class Canvas
 
     public void present()
     {
+        wireRenderer.renderScene(scene);
         final @Nullable Graphics g = panel.getGraphics();
         if (g != null)
         {
